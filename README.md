@@ -22,7 +22,7 @@ alternatively, you can download the source code and build it yoursef:
 
 ```bash
 git clone https://github.com/twitter-cat/twitterarchiver.git
-bun run make
+bun make
 ```
 
 ![](./assets/screenshot__1.png)
@@ -71,7 +71,7 @@ all releases are built by [this github action](https://github.com/twitter-cat/tw
 twitter now requires authentication to use search, and the api is basically useless
 
 **is my twitter login data stored anywhere?**    
-only locally. we store your twitter cookies in your system keychain so you dont have to constantly log in
+only locally. we store your twitter cookies so you dont have to constantly log in. due to issues with logging in using the system keychain (specifically on macos), this data is stored in the `TwitterArchiverStore` file in your user data folder.
 
 **why electron?**    
 it's the best way to do with what this needs. managing 3 different codebases, each requiring to show webviews, retrieve cookies, execute javascript in webviews, and a decent ui isn't really feasible with other technologies

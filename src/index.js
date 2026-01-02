@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import {
 	app,
@@ -6,16 +7,54 @@ import {
 	ipcMain,
 	Menu,
 	nativeImage,
-	session,
 	nativeTheme,
-	shell
+	session,
+	shell,
 } from "electron";
-import keytar from "keytar";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let authWindow, guestToken, mainWindow;
+
+const STORAGE_PATH = path.join(app.getPath("userData"), "TwitterArchiverStore");
+
+async function setData(key, value) {
+	try {
+		let data = {};
+		try {
+			const content = await fs.readFile(STORAGE_PATH, "utf8");
+			data = JSON.parse(content);
+		} catch {}
+
+		data[key] = value;
+		await fs.writeFile(STORAGE_PATH, JSON.stringify(data), "utf8");
+	} catch (err) {
+		console.error("Error saving data:", err);
+		throw err;
+	}
+}
+
+async function getData(key) {
+	try {
+		const content = await fs.readFile(STORAGE_PATH, "utf8");
+		const data = JSON.parse(content);
+		return data[key] || null;
+	} catch {
+		return null;
+	}
+}
+
+async function deleteData(key) {
+	try {
+		const content = await fs.readFile(STORAGE_PATH, "utf8");
+		const data = JSON.parse(content);
+		delete data[key];
+		await fs.writeFile(STORAGE_PATH, JSON.stringify(data), "utf8");
+	} catch (err) {
+		console.error("Error deleting data:", err);
+	}
+}
 
 (async () => {
 	const { guest_token } = await (
@@ -50,7 +89,9 @@ const createWindow = () => {
 		resizable: false,
 		show: false,
 		autoHideMenuBar: true,
-		...(process.platform === "darwin" ? { titleBarStyle: "hidden", trafficLightPosition: { x: 16, y: 16 } } : {}),
+		...(process.platform === "darwin"
+			? { titleBarStyle: "hidden", trafficLightPosition: { x: 16, y: 16 } }
+			: {}),
 		icon: path.join(import.meta.dirname, "src/assets/icon.png"),
 		backgroundColor: "#15171a",
 		webPreferences: {
@@ -86,10 +127,7 @@ const createWindow = () => {
 ipcMain.on("from-renderer", async (evt, data) => {
 	if (data === "request-auth") {
 		try {
-			const auth = await keytar.getPassword(
-				"twittercat-archiver",
-				"auth-cookies",
-			);
+			const auth = await getData("auth-cookies");
 			if (!auth) return;
 
 			evt.sender.send("from-main", { type: "auth-cookies", data: auth });
@@ -136,22 +174,19 @@ ipcMain.on("from-renderer", async (evt, data) => {
 	}
 
 	if (data === "logout") {
-		await keytar.deletePassword("twittercat-archiver", "auth-cookies");
-		await keytar.deletePassword("twittercat-archiver", "user-agent");
+		await deleteData("auth-cookies");
+		await deleteData("user-agent");
 	}
 
 	if (data === "github") {
-    await shell.openExternal("https://github.com/twitter-cat/twitterarchiver");
+		await shell.openExternal("https://github.com/twitter-cat/twitterarchiver");
 	}
 
 	if (data.startsWith("start-archiving:")) {
 		const username = data.replace("start-archiving:", "");
 
 		try {
-			const authCookiesStr = await keytar.getPassword(
-				"twittercat-archiver",
-				"auth-cookies",
-			);
+			const authCookiesStr = await getData("auth-cookies");
 
 			if (!authCookiesStr) {
 				evt.sender.send("from-main", {
@@ -163,10 +198,7 @@ ipcMain.on("from-renderer", async (evt, data) => {
 
 			const cookies = JSON.parse(authCookiesStr);
 
-			let userAgent = await keytar.getPassword(
-				"twittercat-archiver",
-				"user-agent",
-			);
+			let userAgent = await getData("user-agent");
 			if (!userAgent) {
 				userAgent =
 					"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
@@ -269,23 +301,32 @@ ipcMain.on("from-renderer", async (evt, data) => {
 			authWindow = null;
 		});
 
-		authWindow.webContents.on("will-navigate", async (_, url) => {
-			if (url.endsWith("/home")) {
-				const cookies = await authWindow.webContents.session.cookies.get({});
-				await keytar.setPassword(
-					"twittercat-archiver",
-					"auth-cookies",
-					JSON.stringify(cookies),
-				);
-				await keytar.setPassword(
-					"twittercat-archiver",
-					"user-agent",
-					userAgent,
-				);
+		const saveCookies = async () => {
+			const cookies = await authWindow.webContents.session.cookies.get({});
+			await setData("auth-cookies", JSON.stringify(cookies));
+			await setData("user-agent", userAgent);
 
-				authWindow.close();
-			}
+			authWindow.close();
+		};
+
+		authWindow.webContents.on("will-navigate", (_, url) => {
+			if (url.endsWith("/home")) saveCookies();
 		});
+		authWindow.webContents.on("did-navigate", (_, url) => {
+			if (url.endsWith("/home")) saveCookies();
+		});
+
+		let authCookieTimeout;
+		authWindow.webContents.session.cookies.on(
+			"changed",
+			(_, cookie, __, removed) => {
+				if (removed) return;
+				if (cookie.name === "auth_token" && cookie.domain.endsWith(".x.com")) {
+					clearTimeout(authCookieTimeout);
+					authCookieTimeout = setTimeout(saveCookies, 1000);
+				}
+			},
+		);
 	}
 });
 
