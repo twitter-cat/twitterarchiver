@@ -64,6 +64,9 @@ if you already have your own solution, go with that. otherwise, we recommend usi
 
 ## faq
 
+**how can i be sure the prebuilt binaries are safe?**    
+all releases are built by [this github action](https://github.com/twitter-cat/twitterarchiver/blob/main/.github/workflows/build.yaml). i couldn't add malware even if i wanted to. if you don't trust github, you can still build from source.
+
 **why do i need to login with twitter?**    
 twitter now requires authentication to use search, and the api is basically useless
 
