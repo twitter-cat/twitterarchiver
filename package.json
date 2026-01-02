@@ -1,9 +1,9 @@
 {
-  "name": "tcat-archiver",
+  "name": "twitterarchiver",
   "productName": "tcat-archiver",
   "type": "module",
   "version": "1.0.0",
-  "description": "TweetArchiver",
+  "description": "TwitterArchiver",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
