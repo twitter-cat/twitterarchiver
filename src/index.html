@@ -509,7 +509,7 @@
       };
       zip.file("metadata.json", JSON.stringify(metadata, null, 2));
       zip.file(
-        "viewer.html",
+        "index.html",
         await (await fetch("./__viewer_template.html")).text(),
       );
 
