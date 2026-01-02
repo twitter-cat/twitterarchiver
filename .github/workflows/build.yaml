@@ -8,36 +8,46 @@ on:
 jobs:
   mac:
     runs-on: macos-latest
+    outputs:
+      release_files: ${{ steps.collect.outputs.files }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
+
       - run: bun install
       - run: bunx electron-forge make
 
+      # collect artifacts for release
+      - id: collect
+        run: |
+          echo "files=$(find out/make -type f | paste -sd ',' -)" >> $GITHUB_OUTPUT
+
+      # create GitHub release
       - uses: softprops/action-gh-release@v2
         with:
-          files: out/make/**/*
+          files: ${{ steps.collect.outputs.files }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   windows:
     runs-on: windows-latest
+    needs: mac
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
+
       - run: bun install
       - run: bunx electron-forge make
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: out/make/**/*
 
   linux:
     runs-on: ubuntu-latest
+    needs: mac
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
+
       - run: bun install
       - run: bunx electron-forge make
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: out/make/**/*
