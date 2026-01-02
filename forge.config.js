@@ -5,6 +5,9 @@ export default {
 	packagerConfig: {
 		asar: true,
 		icon: "./src/assets/icon",
+
+    executableName: "twitterarchiver",
+    name: "TwitterArchiver",
 	},
 	rebuildConfig: {},
 	makers: [
@@ -52,7 +55,9 @@ export default {
 			name: "@electron-forge/maker-deb",
 			config: {
 				options: {
+				name: "twitterarchiver",
 					icon: "./src/assets/icon.png",
+					executable: "twitterarchiver",
 				},
 			},
 		},
@@ -64,6 +69,7 @@ export default {
 					productName: "TwitterArchiver",
 					homepage: "https://twitter.cat",
 					icon: "./src/assets/icon.png",
+					executable: "twitterarchiver",
 				},
 			},
 		},
@@ -73,8 +79,7 @@ export default {
 			name: "@electron-forge/plugin-auto-unpack-natives",
 			config: {},
 		},
-		// Fuses are used to enable/disable various Electron functionality
-		// at package time, before code signing the application
+
 		new FusesPlugin({
 			version: FuseVersion.V1,
 			[FuseV1Options.RunAsNode]: false,
