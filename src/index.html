@@ -1,0 +1,902 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>TwitterArchiver</title>
+    <link rel="icon" href="./assets/icon.png" />
+    <link rel="stylesheet" href="index.css" />
+    <script src="./jszip.min.js" async></script>
+  </head>
+  <body>
+    <div class="archive-container" style="display: none">
+      <webview id="twitter-webview" partition="persist:twitter"></webview>
+    </div>
+    <div class="main-panel">
+      <div class="intro" style="opacity: 0;filter:blur(4px)">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 36 36"
+          width="48"
+          height="48"
+        >
+          <path
+            fill="#1DA1F2"
+            d="M10.478 22.439s.702 2.281-.337 7.993c-.186 1.025-.46 2.072-.599 2.93-1.757 0-1.851 2.002-1.478 2.002h2.094c1.337 0 2.971-3.334 3.854-7.961s-3.534-4.964-3.534-4.964m13.042 3.702s2.272 1.22 2.188 4.081c-.033 1.131-.249 2.091-.355 3.024-1.832 0-1.839 1.985-1.305 1.985h1.856c.923 0 3.001-3.158 3.379-7.281s-5.763-1.809-5.763-1.809"
+          />
+          <path
+            fill="#1DA1F2"
+            d="M36 8.447C36 3.525 31.859 1 27 1a1 1 0 1 0 0 2c1.804 0 6.717.934 6.717 5.447 0 2.881-1.567 5.462-3.77 5.982-.164-.073-.345-.104-.509-.192-7.239-3.917-13.457.902-15.226-.29-1.752-1.182-.539-3.255-2.824-5.243-.33-1.841-1.073-4.477-1.794-4.477-.549 0-1.265 1.825-1.74 3.656-.591-1.381-1.363-2.756-1.86-2.756-.64 0-1.278 2.273-1.594 4.235-1.68 1.147-2.906 2.809-2.906 4.765 0 2.7 4.05 3.357 5.4 3.411s3.023 3.562 3.585 5.072c1.242 4.367 2.051 8.699 2.698 11.183-1.649 0-1.804 2.111-1.348 2.111.713 0 1.953-.003 2.225 0 1.381.014 2.026-4.706 2.026-8.849 0-.212-.011-.627-.011-.627s1.93.505 6.038-.208c2.444-.424 5.03.849 5.746 3.163.527 1.704 1.399 3.305 1.868 4.484-1.589 0-1.545 2.037-1.084 2.037.787 0 1.801.014 2.183 0 1.468-.055.643-7.574 1.03-10.097s1.267-5.578-.229-8.797C34.857 15.236 36 11.505 36 8.447"
+          />
+          <path
+            fill="#1DA1F2"
+            d="M2.984 12.86c-.677.423-.677 1.777-1.015 1.777S.954 13.841.954 12.86c-.001-.981 2.862-.52 2.03 0"
+          />
+        </svg>
+
+        <p class="intp">log in to your twitter account <br>to start archiving profiles</p>
+
+        <button class="secondary" style="display: none">
+          paste auth token
+        </button>
+        <button class="primary">login with twitter</button>
+      </div>
+      <div class="ui" style="display: none">
+        <header>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 36 36"
+            width="48"
+            height="48"
+          >
+            <path
+              fill="#1DA1F2"
+              d="M10.478 22.439s.702 2.281-.337 7.993c-.186 1.025-.46 2.072-.599 2.93-1.757 0-1.851 2.002-1.478 2.002h2.094c1.337 0 2.971-3.334 3.854-7.961s-3.534-4.964-3.534-4.964m13.042 3.702s2.272 1.22 2.188 4.081c-.033 1.131-.249 2.091-.355 3.024-1.832 0-1.839 1.985-1.305 1.985h1.856c.923 0 3.001-3.158 3.379-7.281s-5.763-1.809-5.763-1.809"
+            />
+            <path
+              fill="#1DA1F2"
+              d="M36 8.447C36 3.525 31.859 1 27 1a1 1 0 1 0 0 2c1.804 0 6.717.934 6.717 5.447 0 2.881-1.567 5.462-3.77 5.982-.164-.073-.345-.104-.509-.192-7.239-3.917-13.457.902-15.226-.29-1.752-1.182-.539-3.255-2.824-5.243-.33-1.841-1.073-4.477-1.794-4.477-.549 0-1.265 1.825-1.74 3.656-.591-1.381-1.363-2.756-1.86-2.756-.64 0-1.278 2.273-1.594 4.235-1.68 1.147-2.906 2.809-2.906 4.765 0 2.7 4.05 3.357 5.4 3.411s3.023 3.562 3.585 5.072c1.242 4.367 2.051 8.699 2.698 11.183-1.649 0-1.804 2.111-1.348 2.111.713 0 1.953-.003 2.225 0 1.381.014 2.026-4.706 2.026-8.849 0-.212-.011-.627-.011-.627s1.93.505 6.038-.208c2.444-.424 5.03.849 5.746 3.163.527 1.704 1.399 3.305 1.868 4.484-1.589 0-1.545 2.037-1.084 2.037.787 0 1.801.014 2.183 0 1.468-.055.643-7.574 1.03-10.097s1.267-5.578-.229-8.797C34.857 15.236 36 11.505 36 8.447"
+            />
+            <path
+              fill="#1DA1F2"
+              d="M2.984 12.86c-.677.423-.677 1.777-1.015 1.777S.954 13.841.954 12.86c-.001-.981 2.862-.52 2.03 0"
+            />
+          </svg>
+          <button class="logout">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-logout"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"
+              />
+              <path d="M9 12h12l-3 -3" />
+              <path d="M18 15l3 -3" />
+            </svg>
+          </button>
+        </header>
+
+        <main>
+          <input type="text" placeholder="username to archive" autofocus />
+
+          <div class="list"><p>start typing a username to find results</p></div>
+
+          <button class="primary start-archive">start archiving</button>
+        </main>
+      </div>
+      <div class="archiving-ui" style="display: none">
+        <header>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 36 36"
+            width="48"
+            height="48"
+          >
+            <path
+              fill="#1DA1F2"
+              d="M10.478 22.439s.702 2.281-.337 7.993c-.186 1.025-.46 2.072-.599 2.93-1.757 0-1.851 2.002-1.478 2.002h2.094c1.337 0 2.971-3.334 3.854-7.961s-3.534-4.964-3.534-4.964m13.042 3.702s2.272 1.22 2.188 4.081c-.033 1.131-.249 2.091-.355 3.024-1.832 0-1.839 1.985-1.305 1.985h1.856c.923 0 3.001-3.158 3.379-7.281s-5.763-1.809-5.763-1.809"
+            />
+            <path
+              fill="#1DA1F2"
+              d="M36 8.447C36 3.525 31.859 1 27 1a1 1 0 1 0 0 2c1.804 0 6.717.934 6.717 5.447 0 2.881-1.567 5.462-3.77 5.982-.164-.073-.345-.104-.509-.192-7.239-3.917-13.457.902-15.226-.29-1.752-1.182-.539-3.255-2.824-5.243-.33-1.841-1.073-4.477-1.794-4.477-.549 0-1.265 1.825-1.74 3.656-.591-1.381-1.363-2.756-1.86-2.756-.64 0-1.278 2.273-1.594 4.235-1.68 1.147-2.906 2.809-2.906 4.765 0 2.7 4.05 3.357 5.4 3.411s3.023 3.562 3.585 5.072c1.242 4.367 2.051 8.699 2.698 11.183-1.649 0-1.804 2.111-1.348 2.111.713 0 1.953-.003 2.225 0 1.381.014 2.026-4.706 2.026-8.849 0-.212-.011-.627-.11-.627s1.93.505 6.038-.208c2.444-.424 5.03.849 5.746 3.163.527 1.704 1.399 3.305 1.868 4.484-1.589 0-1.545 2.037-1.084 2.037.787 0 1.801.014 2.183 0 1.468-.055.643-7.574 1.03-10.097s1.267-5.578-.229-8.797C34.857 15.236 36 11.505 36 8.447"
+            />
+            <path
+              fill="#1DA1F2"
+              d="M2.984 12.86c-.677.423-.677 1.777-1.015 1.777S.954 13.841.954 12.86c-.001-.981 2.862-.52 2.03 0"
+            />
+          </svg>
+        </header>
+
+        <main>
+          <div class="archive-status">
+            <p class="archiving-user">
+              archiving <span class="username">@user</span>
+            </p>
+            <div class="stats">
+              <div class="stat">
+                <span class="stat-value tweet-count">0</span>
+                <span class="stat-label">tweets</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value media-count">0</span>
+                <span class="stat-label">media</span>
+              </div>
+            </div>
+            <div class="progress-indicator">
+              <div class="spinner"></div>
+              <span class="progress-text">Scanning tweets...</span>
+            </div>
+          </div>
+
+          <div class="tweet-list"></div>
+
+          <div class="archive-buttons">
+            <button class="secondary pause-archive-btn">
+              <svg
+                class="pause-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="none"
+              >
+                <rect x="6" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="4" width="4" height="16" rx="1" />
+              </svg>
+              <svg
+                class="play-icon"
+                style="display: none"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="none"
+              >
+                <path d="M6 4l15 8-15 8z" />
+              </svg>
+              <span class="pause-text">pause</span>
+            </button>
+            <button class="primary stop-archive-btn">finish</button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const loginButton = document.querySelector(".intro .primary");
+    const startArchiveButton = document.querySelector(".start-archive");
+    let authInterval, auth;
+    let isArchiving = false;
+    let isPaused = false;
+    let archivedTweets = new Map();
+    let fullTweetObjects = new Map();
+    let scrollInterval = null;
+    let currentUsername = null;
+
+    const debounce = (callback, wait) => {
+      let timeoutId = null;
+      return (...args) => {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => {
+          callback(...args);
+        }, wait);
+      };
+    };
+
+    document.querySelector("main input").addEventListener("input", () => {
+      const query = document.querySelector("main input").value;
+      document.querySelector("main input").value = query
+        .trim()
+        .replaceAll("@", "")
+        .replaceAll(" ", "");
+    });
+
+    document.querySelector("main input").addEventListener(
+      "input",
+      debounce(async () => {
+        const query = document.querySelector("main input").value;
+        const list = document.querySelector(".list");
+
+        if (query === "") {
+          list.innerHTML = "<p>start typing a username to find results</p>";
+          return;
+        }
+
+        window.ipc.send("from-renderer", `query:${encodeURIComponent(query)}`);
+
+        let ign;
+        list.style.opacity = ".5";
+
+        window.ipc.on("from-main", async (e) => {
+          if (e.type === "search-results" && !ign) {
+            const { data } = e;
+            const dataJson = JSON.parse(data);
+            list.style.opacity = "1";
+
+            if (dataJson.query !== document.querySelector("main input").value)
+              return;
+
+            list.innerHTML = "";
+            dataJson.res.forEach((user) => {
+              const formatNumber = (n) => {
+                if (n < 1_000) return `${n}`;
+
+                if (n < 1_000_000) {
+                  const v = n / 1_000;
+                  return `${Number.isInteger(v) ? v : v.toFixed(1)}K`;
+                }
+
+                const v = n / 1_000_000;
+                return `${Number.isInteger(v) ? v : v.toFixed(2)}M`;
+              };
+
+              const div = document.createElement("div");
+              div.classList.add("user-item");
+              div.innerHTML = `
+            <img src="${user.profile_image_url_https.replace("_normal", "")}" loading="lazy" />
+            <div>
+            <p>${user.name.replaceAll("<", "").replaceAll(">", "")}</p>
+            <span>@${user.screen_name}</span>
+
+            <span class="stats"><b>${formatNumber(user.statuses_count)}</b> tweets</span>
+            </div>
+          `;
+
+              if (user.protected) {
+                const lock = document.createElement("span");
+                lock.classList.add("lock-icon");
+                lock.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" style="margin-bottom:-2px;margin-left:2px;" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-lock"><rect x="5" y="11" width="14" height="10" rx="2" /><circle cx="12" cy="16" r="1" /><path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>`;
+                div.querySelector("div p").appendChild(lock);
+              }
+
+              div.addEventListener("click", () => {
+                if (
+                  user.protected &&
+                  !confirm("are you sure you wanna archive a private account?")
+                )
+                  return;
+                const input = document.querySelector("main input");
+                input.value = user.screen_name;
+              });
+
+              list.appendChild(div);
+            });
+
+            ign = true;
+          }
+        });
+      }, 200),
+    );
+
+    startArchiveButton.addEventListener("click", async () => {
+      const username = document.querySelector("main input").value.trim();
+      if (!username) {
+        document.querySelector("main input").focus();
+        return;
+      }
+
+      currentUsername = username;
+      window.ipc.send("from-renderer", `start-archiving:${username}`);
+    });
+
+    document
+      .querySelector(".stop-archive-btn")
+      .addEventListener("click", stopArchiving);
+
+    document
+      .querySelector(".pause-archive-btn")
+      .addEventListener("click", togglePause);
+
+    function togglePause() {
+      isPaused = !isPaused;
+      const btn = document.querySelector(".pause-archive-btn");
+      const pauseIcon = btn.querySelector(".pause-icon");
+      const playIcon = btn.querySelector(".play-icon");
+      const pauseText = btn.querySelector(".pause-text");
+      const progressIndicator = document.querySelector(".progress-indicator");
+      const spinner = progressIndicator.querySelector(".spinner");
+      const progressText = progressIndicator.querySelector(".progress-text");
+
+      if (isPaused) {
+        pauseIcon.style.display = "none";
+        playIcon.style.display = "inline";
+        pauseText.textContent = "resume";
+        spinner.style.animationPlayState = "paused";
+        progressText.textContent = "Paused";
+      } else {
+        pauseIcon.style.display = "inline";
+        playIcon.style.display = "none";
+        pauseText.textContent = "pause";
+        spinner.style.animationPlayState = "running";
+        progressText.textContent = "Scanning tweets...";
+      }
+    }
+
+    function getMediaUrls(tweetObj) {
+      const urls = [];
+
+      try {
+        const media =
+          tweetObj?.legacy?.extended_entities?.media ||
+          tweetObj?.legacy?.entities?.media ||
+          [];
+
+        for (const m of media) {
+          if (m.type === "photo") {
+            const url = m.media_url_https + "?format=jpg&name=orig";
+            urls.push({ url, type: "photo", original_url: m.media_url_https });
+          } else if (m.type === "video" || m.type === "animated_gif") {
+            const variants = m.video_info?.variants || [];
+            const mp4Variants = variants.filter(
+              (v) => v.content_type === "video/mp4",
+            );
+            if (mp4Variants.length > 0) {
+              mp4Variants.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+              urls.push({
+                url: mp4Variants[0].url,
+                type: m.type,
+                original_url: m.media_url_https,
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error extracting media URLs:", err);
+      }
+
+      return urls;
+    }
+
+    function urlToBase64Filename(url) {
+      const cleanUrl = url.split("?")[0];
+      const encoded = btoa(cleanUrl)
+        .replace(/\//g, "_")
+        .replace(/\+/g, "-")
+        .replace(/=/g, "");
+
+      let ext = ".jpg";
+      if (url.includes(".png")) ext = ".png";
+      else if (url.includes(".mp4") || url.includes("video")) ext = ".mp4";
+      else if (url.includes(".gif")) ext = ".gif";
+
+      return encoded + ext;
+    }
+
+    async function fetchMediaAsBlob(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.blob();
+      } catch (err) {
+        console.error(`Failed to fetch media: ${url}`, err);
+        return null;
+      }
+    }
+
+    async function downloadExport() {
+      if (fullTweetObjects.size === 0) {
+        alert("no tweets to export!");
+        return;
+      }
+
+      const progressText = document.querySelector(".progress-text");
+      const spinner = document.querySelector(".spinner");
+      spinner.style.animationPlayState = "running";
+      progressText.textContent = "creating export...";
+
+      const zip = new JSZip();
+      const mediaFolder = zip.folder("media");
+
+      const allMedia = [];
+      for (const tweetObj of fullTweetObjects.values()) {
+        const mediaUrls = getMediaUrls(tweetObj);
+        for (const m of mediaUrls) {
+          allMedia.push(m);
+        }
+      }
+
+      let fetchedCount = 0;
+      const totalMedia = allMedia.length;
+      const mediaMap = new Map();
+
+      for (const m of allMedia) {
+        const filename = urlToBase64Filename(m.url);
+        mediaMap.set(m.url, filename);
+
+        progressText.textContent = `fetching media ${fetchedCount + 1}/${totalMedia}...`;
+
+        const blob = await fetchMediaAsBlob(m.url);
+        if (blob) {
+          mediaFolder.file(filename, blob);
+        }
+
+        fetchedCount++;
+      }
+
+      progressText.textContent = "writing tweets...";
+      const tweetsArray = Array.from(fullTweetObjects.values());
+
+      const header = [
+        "__typename",
+        "id",
+        "unmention_data",
+        "edit_tweet_ids",
+        "views_count",
+        "source",
+        "bookmark_count",
+        "created_at",
+        "display_text_range",
+        "entities",
+        "media",
+        "favorite_count",
+        "full_text",
+        "lang",
+        "is_quote_status",
+        "possibly_sensitive",
+        "quote_count",
+        "reply_count",
+        "retweet_count",
+        "author",
+        "quote_id",
+        "quote_author",
+        "quote_full_text",
+      ].join(",");
+
+      const escapeCSV = (value) => {
+        if (value === null || value === undefined) return "";
+        const str = `${value}`;
+        if (str.includes(`"`) || str.includes(",") || str.includes("\n")) {
+          return `"${str.replace(/"/g, `""`)}"`;
+        }
+        return str;
+      };
+
+      const rows = tweetsArray.map((tweet) => {
+        const legacy = tweet.legacy ?? {};
+        const quote = tweet.quoted_status_result?.result ?? null;
+
+        return [
+          tweet.__typename,
+          tweet.rest_id ?? tweet.id_str,
+          JSON.stringify(tweet.unmention_data ?? {}),
+          JSON.stringify(tweet.edit_control?.edit_tweet_ids ?? []),
+          tweet.views?.count ?? "",
+          tweet.source ?? "",
+          legacy.bookmark_count ?? "",
+          legacy.created_at ?? "",
+          legacy.display_text_range
+            ? `${legacy.display_text_range[0]}:${legacy.display_text_range[1]}`
+            : "",
+          JSON.stringify(legacy.entities ?? {}),
+          JSON.stringify(legacy.extended_entities?.media ?? []),
+          legacy.favorite_count ?? "",
+          legacy.full_text ?? "",
+          legacy.lang ?? "",
+          legacy.is_quote_status ?? false,
+          legacy.possibly_sensitive ?? false,
+          legacy.quote_count ?? 0,
+          legacy.reply_count ?? 0,
+          legacy.retweet_count ?? 0,
+          tweet.user_id_str ?? "",
+          quote?.rest_id ?? "",
+          quote?.core?.user_results?.result?.rest_id ?? "",
+          quote?.legacy?.full_text ?? "",
+        ]
+          .map(escapeCSV)
+          .join(",");
+      });
+
+      const csv = `${header}\n${rows.join("\n")}`;
+
+      zip.file("tweets.csv", csv);
+
+      const metadata = {
+        username: currentUsername,
+        exported_at: new Date().toISOString().split(".")[0],
+        tweet_count: fullTweetObjects.size,
+        media_count: allMedia.length,
+      };
+      zip.file("metadata.json", JSON.stringify(metadata, null, 2));
+      zip.file(
+        "viewer.html",
+        await (await fetch("./__viewer_template.html")).text(),
+      );
+
+      progressText.textContent = "Generating zip file...";
+
+      const zipBlob = await zip.generateAsync(
+        {
+          type: "blob",
+          compression: "DEFLATE",
+          compressionOptions: { level: 6 },
+        },
+        (meta) => {
+          progressText.textContent = `compressing... ${Math.round(meta.percent)}%`;
+        },
+      );
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${currentUsername}_archive_${new Date().toISOString().split("T")[0]}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      progressText.textContent = "Export complete!";
+    }
+
+    async function stopArchiving() {
+      if (fullTweetObjects.size === 0) {
+        alert("no tweets to export!");
+        return;
+      }
+
+      if (!confirm("are you sure you want to stop this archive?")) return;
+
+      isPaused = true;
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+
+      await downloadExport();
+
+      isArchiving = false;
+      isPaused = false;
+
+      document.querySelector(".archive-container").style.display = "none";
+
+      document.querySelector(".ui").style.display = "flex";
+      document.querySelector(".archiving-ui").style.display = "none";
+
+      const btn = document.querySelector(".pause-archive-btn");
+      btn.querySelector(".pause-icon").style.display = "inline";
+      btn.querySelector(".play-icon").style.display = "none";
+      btn.querySelector(".pause-text").textContent = "pause";
+
+      window.ipc.send("from-renderer", "shrink-window");
+
+      const webview = document.getElementById("twitter-webview");
+      webview.src = "about:blank";
+    }
+
+    loginButton.addEventListener("click", async () => {
+      const high = await navigator.userAgentData.getHighEntropyValues([
+        "architecture",
+        "platformVersion",
+        "uaFullVersion",
+      ]);
+
+      window.ipc.send(
+        "from-renderer",
+        `start-auth:${encodeURIComponent(
+          JSON.stringify({
+            platform: navigator.userAgentData.platform,
+            ...high,
+          }),
+        )}`,
+      );
+
+      authInterval = setInterval(() => {
+        window.ipc.send("from-renderer", "request-auth");
+      }, 300);
+    });
+
+    document.querySelector(".logout").addEventListener("click", async () => {
+      const confirm = window.confirm("are you sure you want to log out?");
+
+      if (!confirm) return;
+      window.ipc.send("from-renderer", "logout");
+      auth = null;
+
+      document.body.querySelector(".intro").style.display = "flex";
+      document.body.querySelector(".ui").style.display = "none";
+    });
+
+    window.ipc.on("from-main", async (e) => {
+      if (e.type === "auth-cookies") {
+        if (authInterval) clearInterval(authInterval);
+        auth = e.data;
+
+        document.body.querySelector(".intro").style.display = "none";
+        document.body.querySelector(".ui").style.display = "flex";
+      }
+
+      if (e.type === "start-archive-webview") {
+        const { username, userAgent } = JSON.parse(e.data);
+
+        isArchiving = true;
+        isPaused = false;
+        archivedTweets.clear();
+        fullTweetObjects.clear();
+
+        document.querySelector(".ui").style.display = "none";
+        document.querySelector(".archiving-ui").style.display = "flex";
+        document.querySelector(".archiving-user .username").textContent =
+          `@${username}`;
+        document.querySelector(".tweet-count").textContent = "0";
+        document.querySelector(".media-count").textContent = "0";
+        document.querySelector(".tweet-list").innerHTML = "";
+
+        document.querySelector(
+          ".progress-indicator .spinner",
+        ).style.animationPlayState = "running";
+        document.querySelector(
+          ".progress-indicator .progress-text",
+        ).textContent = "scanning tweets...";
+
+        window.ipc.send("from-renderer", "expand-window");
+
+        const archiveContainer = document.querySelector(".archive-container");
+        archiveContainer.style.display = "flex";
+
+        const webview = document.getElementById("twitter-webview");
+
+        webview.useragent = userAgent;
+
+        webview.addEventListener("console-message", (e) => {
+          if (e.message.startsWith("TWEET_DATA:")) {
+            try {
+              const data = JSON.parse(e.message.replace("TWEET_DATA:", ""));
+              processTweetData(data);
+            } catch (err) {
+              console.error("Error parsing tweet data:", err);
+            }
+          }
+        });
+
+        webview.addEventListener("did-finish-load", () => {
+          if (!isArchiving) return;
+
+          webview.executeJavaScript(`
+          (function() {
+            if (window.__interceptorInstalled) return;
+            window.__interceptorInstalled = true;
+
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+              const response = await originalFetch.apply(this, args);
+              const url = args[0]?.url || args[0];
+
+              if (url && typeof url === 'string' && url.includes('/SearchTimeline')) {
+                try {
+                  const clone = response.clone();
+                  const data = await clone.json();
+                  console.debug("TWEET_DATA:" + JSON.stringify(data));
+                } catch (e) {}
+              }
+
+              return response;
+            };
+
+            const originalXHROpen = XMLHttpRequest.prototype.open;
+            const originalXHRSend = XMLHttpRequest.prototype.send;
+
+            XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+              this._url = url;
+              return originalXHROpen.call(this, method, url, ...rest);
+            };
+
+            XMLHttpRequest.prototype.send = function(...args) {
+              this.addEventListener("load", function() {
+                if (this._url && this._url.includes('/SearchTimeline')) {
+                  try {
+                    const data = JSON.parse(this.responseText);
+                    console.debug("TWEET_DATA:" + JSON.stringify(data));
+                  } catch (e) {}
+                }
+              });
+              return originalXHRSend.apply(this, args);
+            };
+
+            console.debug("interceptor installed!!");
+          })();
+        `);
+
+          setTimeout(() => {
+            if (scrollInterval) clearInterval(scrollInterval);
+            scrollInterval = setInterval(() => {
+              if (!isArchiving) {
+                clearInterval(scrollInterval);
+                return;
+              }
+
+              if (isPaused) return;
+
+              webview
+                .executeJavaScript(
+                  `
+              window.scrollBy(0, 1000);
+              document.documentElement.scrollHeight;
+            `,
+                )
+                .then((scrollHeight) => {
+                  webview
+                    .executeJavaScript(`window.innerHeight + window.scrollY`)
+                    .then((scrollPos) => {
+                      if (scrollPos >= scrollHeight - 100) {
+                        // near the bottom, wait a bit for more content to load
+                      }
+                    });
+                });
+            }, 400);
+          }, 1500);
+        });
+        const searchUrl = `https://x.com/search?q=from%3A${encodeURIComponent(username)}&src=typed_query&f=live`;
+        webview.src = searchUrl;
+      }
+
+      if (e.type === "archive-error") {
+        alert("Error: " + e.data);
+      }
+    });
+
+    function processTweetData(data) {
+      try {
+        const instructions =
+          data?.data?.search_by_raw_query?.search_timeline?.timeline
+            ?.instructions || [];
+
+        for (const instruction of instructions) {
+          const entries = instruction.entries || [];
+          for (const entry of entries) {
+            if (entry.content?.itemContent?.tweet_results?.result) {
+              const tweetResult =
+                entry.content.itemContent.tweet_results.result;
+              const tweetId = getTweetId(tweetResult);
+              if (tweetId && !archivedTweets.has(tweetId)) {
+                archivedTweets.set(tweetId, extractTweetInfo(tweetResult));
+                fullTweetObjects.set(tweetId, tweetResult);
+                updateArchiveUI(extractTweetInfo(tweetResult));
+              }
+            }
+
+            if (entry.content?.items) {
+              for (const item of entry.content.items) {
+                if (item.item?.itemContent?.tweet_results?.result) {
+                  const tweetResult =
+                    item.item.itemContent.tweet_results.result;
+                  const tweetId = getTweetId(tweetResult);
+                  if (tweetId && !archivedTweets.has(tweetId)) {
+                    archivedTweets.set(tweetId, extractTweetInfo(tweetResult));
+                    fullTweetObjects.set(tweetId, tweetResult);
+                    updateArchiveUI(extractTweetInfo(tweetResult));
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error processing tweet data:", err);
+      }
+    }
+
+    function getTweetId(tweetResult) {
+      try {
+        if (tweetResult.__typename === "TweetWithVisibilityResults") {
+          tweetResult = tweetResult.tweet;
+        }
+        return tweetResult?.legacy?.id_str || tweetResult?.rest_id;
+      } catch {
+        return null;
+      }
+    }
+
+    function extractTweetInfo(tweetResult) {
+      try {
+        if (tweetResult.__typename === "TweetWithVisibilityResults") {
+          tweetResult = tweetResult.tweet;
+        }
+
+        if (!tweetResult || tweetResult.__typename !== "Tweet") {
+          return null;
+        }
+
+        const legacy = tweetResult.legacy;
+        const user = tweetResult.core?.user_results?.result?.legacy;
+
+        if (!legacy || !user) return null;
+
+        const media = legacy.extended_entities?.media || [];
+
+        return {
+          id: legacy.id_str,
+          text: legacy.full_text,
+          created_at: legacy.created_at,
+          user: {
+            id: user.id_str,
+            name: user.name,
+            screen_name: user.screen_name,
+            profile_image_url: user.profile_image_url_https,
+          },
+          retweet_count: legacy.retweet_count,
+          favorite_count: legacy.favorite_count,
+          reply_count: legacy.reply_count,
+          media: media.map((m) => ({
+            type: m.type,
+            url: m.media_url_https,
+            video_url: m.video_info?.variants?.find(
+              (v) => v.content_type === "video/mp4",
+            )?.url,
+          })),
+          is_retweet: !!legacy.retweeted_status_result,
+          is_quote: !!legacy.is_quote_status,
+        };
+      } catch (err) {
+        console.error("Error extracting tweet info:", err);
+        return null;
+      }
+    }
+
+    function updateArchiveUI(tweet) {
+      if (!tweet) return;
+
+      document.querySelector(".tweet-count").textContent = archivedTweets.size;
+
+      let mediaCount = 0;
+      for (const t of archivedTweets.values()) {
+        if (t && t.media) {
+          mediaCount += t.media.length;
+        }
+      }
+      document.querySelector(".media-count").textContent = mediaCount;
+
+      const tweetList = document.querySelector(".tweet-list");
+      const tweetEl = document.createElement("div");
+      tweetEl.classList.add("archived-tweet");
+
+      const text =
+        tweet.text.length > 100
+          ? tweet.text.substring(0, 100) + "..."
+          : tweet.text;
+      const date = new Date(tweet.created_at).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      tweetEl.innerHTML = `
+      <div class="tweet-header">
+        <span class="tweet-date">${date}</span>
+        ${tweet.media.length > 0 ? '<span class="has-media">📷</span>' : ""}
+      </div>
+      <p class="tweet-text">${text.replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</p>
+    `;
+
+      tweetList.insertBefore(tweetEl, tweetList.firstChild);
+
+      while (tweetList.children.length > 500) {
+        tweetList.removeChild(tweetList.lastChild);
+      }
+    }
+
+    window.ipc.send("from-renderer", "request-auth");
+    setTimeout(() => {
+      document.querySelector(".intro").style.opacity = 1;
+      document.querySelector(".intro").style.filter = "blur(0px)"
+      document.querySelector("main input").focus();
+    }, 100);
+
+    window.addEventListener("blur", () => {
+      document.body.classList.add("unfocused");
+    });
+
+    window.addEventListener("focus", () => {
+      document.body.classList.remove("unfocused");
+    });
+  </script>
+</html>
