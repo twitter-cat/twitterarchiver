@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   mac:
     runs-on: macos-latest
@@ -12,9 +15,7 @@ jobs:
       release_files: ${{ steps.collect.outputs.files }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v2
-
       - run: bun install
       - run: bunx electron-forge make
 
@@ -35,9 +36,7 @@ jobs:
     needs: mac
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v2
-
       - run: bun install
       - run: bunx electron-forge make
 
@@ -46,8 +45,6 @@ jobs:
     needs: mac
     steps:
       - uses: actions/checkout@v4
-
       - uses: oven-sh/setup-bun@v2
-
       - run: bun install
       - run: bunx electron-forge make
