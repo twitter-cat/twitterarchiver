@@ -12,7 +12,7 @@
       <webview id="twitter-webview" partition="persist:twitter"></webview>
     </div>
     <div class="main-panel">
-      <div class="intro" style="opacity: 0;filter:blur(4px)">
+      <div class="intro" style="opacity: 0; filter: blur(4px)">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 36 36"
@@ -33,7 +33,9 @@
           />
         </svg>
 
-        <p class="intp">log in to your twitter account <br>to start archiving profiles</p>
+        <p class="intp">
+          log in to your twitter account <br />to start archiving profiles
+        </p>
 
         <button class="secondary" style="display: none">
           paste auth token
@@ -61,6 +63,7 @@
               d="M2.984 12.86c-.677.423-.677 1.777-1.015 1.777S.954 13.841.954 12.86c-.001-.981 2.862-.52 2.03 0"
             />
           </svg>
+
           <button class="logout">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +90,18 @@
         <main>
           <input type="text" placeholder="username to archive" autofocus />
 
-          <div class="list"><p>start typing a username to find results</p></div>
+          <div class="list">
+            <p>start typing a username to find results</p>
+            <p class="callout">
+              if you like TwitterArchiver, <br />make sure to
+              <a
+                href="https://github.com/twitter-cat/twitterarchiver"
+                target="_blank"
+                onclick="window.ipc.send('from-renderer', 'github');return false"
+                >star it on github</a
+              >
+            </p>
+          </div>
 
           <button class="primary start-archive">start archiving</button>
         </main>
@@ -179,8 +193,8 @@
     let authInterval, auth;
     let isArchiving = false;
     let isPaused = false;
-    let archivedTweets = new Map();
-    let fullTweetObjects = new Map();
+    const archivedTweets = new Map();
+    const fullTweetObjects = new Map();
     let scrollInterval = null;
     let currentUsername = null;
 
@@ -887,7 +901,7 @@
     window.ipc.send("from-renderer", "request-auth");
     setTimeout(() => {
       document.querySelector(".intro").style.opacity = 1;
-      document.querySelector(".intro").style.filter = "blur(0px)"
+      document.querySelector(".intro").style.filter = "blur(0px)";
       document.querySelector("main input").focus();
     }, 100);
 

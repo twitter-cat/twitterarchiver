@@ -6,7 +6,9 @@ import {
 	ipcMain,
 	Menu,
 	nativeImage,
-	session,nativeTheme
+	session,
+	nativeTheme,
+	shell
 } from "electron";
 import keytar from "keytar";
 
@@ -136,6 +138,10 @@ ipcMain.on("from-renderer", async (evt, data) => {
 	if (data === "logout") {
 		await keytar.deletePassword("twittercat-archiver", "auth-cookies");
 		await keytar.deletePassword("twittercat-archiver", "user-agent");
+	}
+
+	if (data === "github") {
+    await shell.openExternal("https://github.com/twitter-cat/twitterarchiver");
 	}
 
 	if (data.startsWith("start-archiving:")) {

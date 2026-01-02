@@ -1,5 +1,14 @@
 <!doctype html>
 <html lang="en">
+  <!--
+  this archive has been user-generated using TwitterArchiver
+
+  we are not affiliated with twitter or responsable for any content in the
+  archives created with this tool. we can not moderate or remove content from
+  these archives, please use them responsibly and respect people's privacy.
+  
+  https://github.com/twitter-cat/twitterarchiver
+  -->
   <head>
     <title>twitter.cat archive viewer</title>
     <meta charset="utf-8" />
@@ -268,7 +277,7 @@
   <body>
     <div class="page">
       <div class="header">
-        <a href="https://twitter.cat">
+        <a href="https://twitter.cat" target="_blank">
           <img
             src="https://twitter.cat/assets/svgs/kitty.svg"
             draggable="false"
@@ -335,8 +344,7 @@
           attachScrollListener();
           searchInput?.addEventListener("input", handleSearch);
         } catch (error) {
-          tweetsRoot.innerHTML =
-            `<div class="error">failed to read tweets${location.protocol === "file:" ? ". due to browser security limits, loading the viewer over the file protocol won’t work. you’ll need to serve it over http, for example using cloudflare pages or any local web server." : ""}</div>`;
+          tweetsRoot.innerHTML = `<div class="error">failed to read tweets${location.protocol === "file:" ? ". due to browser security limits, loading the viewer over the file protocol won’t work. you’ll need to serve it over http, for example using cloudflare pages or any local web server." : ""}</div>`;
           console.error(error);
         }
       }
@@ -347,7 +355,7 @@
           `tweets by @${metadata.username}`;
         document.querySelector(".searchbar").placeholder =
           `search ${metadata.tweet_count.toLocaleString()} tweets, ${metadata.media_count.toLocaleString()} images`;
-        metadataRoot.innerHTML = `<div class="metadata-item">archived ${exported} by <a href="https://twitter.cat">twitter.cat's profilearchiver</a></div>do not use archives to doxx anyone.`;
+        metadataRoot.innerHTML = `<div class="metadata-item">archived ${exported} by <a href="https://github.com/twitter-cat/twitterarchiver" target="_blank">TwitterArchiver</a></div>do not use archives to doxx anyone.`;
       }
 
       function parseCSV(text) {
@@ -478,14 +486,14 @@
 
             const mediaKeys = [
               "ep!opu!vtf!bsdijwft!up!epyy!bozpof",
-              "cz!uxjuufs/dbu",
+              "UxjuufsBsdijwfs",
             ].map(decodeMediaToken);
-            
-            let buf = [];
+
+            const buf = [];
 
             for (const k of mediaKeys) {
               buf.push(`${k}${buf.length * Math.PI}`);
-              
+
               if (!(document.body.innerText.split(k).length - 1)) {
                 const i = () => Promise.resolve().then(i);
                 i();

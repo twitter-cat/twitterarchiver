@@ -102,10 +102,10 @@ body {
       width: 32px;
       height: 32px;
       margin-left: auto;
+      margin-right: auto;
     }
 
     button {
-      margin-left: auto;
       padding: 0px;
       background-color: transparent;
       border: none;
@@ -162,8 +162,21 @@ body {
 
       & > p {
         margin-top: 2em;
-        opacity: 0.5;
+        opacity: 0.9;
         text-align: center;
+        
+        &.callout {
+          margin-top: 1em;
+          font-size: 14px;
+          color: rgba(255, 255, 255, .4);
+          opacity: .7;
+          line-height: 1.3;
+          
+          
+          a {
+            color: rgba(255, 255, 255, .5);
+          }
+        }
       }
 
       .user-item {
