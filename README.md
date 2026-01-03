@@ -15,7 +15,7 @@ export anyone's tweets and media into a zip with an html viewer and csv.
 
   **important:** the macos app isn't signed. you'll need to remove it from quarantine after dragging it to Applications by running:
   
-  `xattr -rd com.apple.quarantine TwitterArchiver.app`
+  `xattr -rd com.apple.quarantine /Applications/TwitterArchiver.app`
 
 
 alternatively, you can download the source code and build it yoursef:
