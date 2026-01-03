@@ -10,7 +10,7 @@ export anyone's tweets and media into a zip with an html viewer and csv.
   * [debian-based distros](https://github.com/twitter-cat/twitterarchiver/releases/latest/download/twitterarchiver_1.0.0_amd64.deb)
   * [red hat-based distros](https://github.com/twitter-cat/twitterarchiver/releases/latest/download/twitterarchiver-1.0.0-1.x86_64.rpm)
 
-* **macos**: [download dmg](https://github.com/twitter-cat/twitterarchiver/releases/latest/download/twitterarchiverdmg)  
+* **macos**: [download dmg](https://github.com/twitter-cat/twitterarchiver/releases/latest/download/twitterarchiver.dmg)  
   * alternatively, [download zip](https://github.com/twitter-cat/twitterarchiver/releases/latest/download/TwitterArchiver-darwin-arm64-1.0.0.zip)
 
   **important:** the macos app isn't signed. you'll need to remove it from quarantine after dragging it to Applications by running:
